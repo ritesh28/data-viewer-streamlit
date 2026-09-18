@@ -22,8 +22,6 @@ def _format_number(value) -> str:
 
 def render_summary(df_view: pd.DataFrame) -> None:
     """Render dataset or column summary. Stats are computed on df_view."""
-    st.subheader("Data Summary")
-
     columns = [ENTIRE_DATASET, *[str(c) for c in df_view.columns]]
     current = st.session_state.selected_column
     index = 0

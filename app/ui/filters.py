@@ -90,9 +90,7 @@ def _format_rule(rule: dict) -> str:
 def render_filters(df: pd.DataFrame) -> None:
     """Build non-destructive view filter/sort rules from the full working df."""
     # Explicit panel instead of Data Wrangler-style column header menus.
-    st.subheader("Filters & Sort")
-
-    with st.expander("Add filter", expanded=False):
+    with st.expander("Add filter", expanded=True):
         if df.empty or df.shape[1] == 0:
             st.caption("No columns available.")
         else:

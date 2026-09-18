@@ -42,7 +42,20 @@ else:
     for message in query_warnings:
         st.warning(message)
 
-    render_summary(df_view)
-    render_insights(df_view)
-    render_filters(st.session_state.df)
-    render_grid(df_view, total_rows=len(st.session_state.df))
+    # Explore tools in a secondary panel; data grid stays visible beside them.
+    explore_col, grid_col = st.columns([1, 2], gap="large")
+
+    with explore_col:
+        summary_tab, insights_tab, filters_tab = st.tabs(
+            ["Summary", "Insights", "Filters"]
+        )
+        with summary_tab:
+            render_summary(df_view)
+        with insights_tab:
+            render_insights(df_view)
+        with filters_tab:
+            render_filters(st.session_state.df)
+
+    with grid_col:
+        st.subheader("Data")
+        render_grid(df_view, total_rows=len(st.session_state.df))

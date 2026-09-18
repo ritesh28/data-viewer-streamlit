@@ -14,7 +14,6 @@ TOP_N_CHART = 20
 
 def render_insights(df_view: pd.DataFrame) -> None:
     """Charts and badges for selected_column, computed on df_view."""
-    st.subheader("Quick Insights")
     selected = st.session_state.selected_column
 
     if selected is None:
@@ -40,7 +39,7 @@ def render_insights(df_view: pd.DataFrame) -> None:
 
     if is_numeric_series(series) or is_datetime_series(series):
         fig = px.histogram(plot_df, x=selected, nbins=30 if is_numeric_series(series) else None)
-        fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), height=280)
+        fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), height=240)
         st.plotly_chart(fig, use_container_width=True)
         return
 
@@ -59,7 +58,7 @@ def render_insights(df_view: pd.DataFrame) -> None:
     fig = px.bar(freq_df, x="count", y=selected, orientation="h")
     fig.update_layout(
         margin=dict(l=10, r=10, t=10, b=10),
-        height=max(220, 28 * len(freq_df)),
+        height=max(200, min(420, 28 * len(freq_df))),
         yaxis={"categoryorder": "total ascending"},
     )
     st.plotly_chart(fig, use_container_width=True)
