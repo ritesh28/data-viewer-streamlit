@@ -1,13 +1,29 @@
+# Data Viewer (Streamlit)
+
+Tabular data viewer and cleaning tool. Milestone 01: upload CSV/Excel, view a grid, download as-is.
+
+## Setup
+
 ```bash
-# python and venv
 pyenv local 3.11.7
 pyenv exec python -m venv .venv
 source .venv/bin/activate
-# poetry
 pip install -U pip setuptools
-pip install poetry # 2.2.1
-poetry init
-# streamlit
-poetry add streamlit # 1.50.0
-streamlit run your_script.py [-- script args]
+pip install poetry
+poetry install
 ```
+
+## Run
+
+```bash
+poetry run streamlit run main.py
+```
+
+## Supported formats
+
+| Action   | Formats         |
+| -------- | --------------- |
+| Upload   | `.csv`, `.xlsx` |
+| Download | `.csv`, `.xlsx` |
+
+Use **Load sample** in the sidebar to open `Sample_Data_for_Plotting_and_Filtering.csv` without uploading.
