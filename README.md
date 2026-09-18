@@ -1,6 +1,8 @@
 # Data Viewer (Streamlit)
 
-Tabular data viewer and cleaning tool. Milestone 01: upload CSV/Excel, view a grid, download as-is.
+Tabular data viewer and cleaning tool.
+
+**Current:** upload CSV/Excel, explore with summary stats / quick insights / non-destructive filter & sort, download as-is.
 
 ## Setup
 
