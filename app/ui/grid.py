@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 
 
-def render_grid() -> None:
+def render_grid(df_view: pd.DataFrame | None = None, *, total_rows: int | None = None) -> None:
     df = st.session_state.df
 
     if df is None:
@@ -16,11 +16,18 @@ def render_grid() -> None:
         )
         return
 
+    display = df if df_view is None else df_view
     name = st.session_state.source_name or "Untitled"
-    rows, cols = df.shape
-    st.caption(f"{name} · {rows:,} rows × {cols:,} columns")
+    shown_rows, cols = display.shape
+    total = len(df) if total_rows is None else total_rows
 
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    filters_active = bool(st.session_state.view_filters) or bool(st.session_state.view_sort)
+    if filters_active or shown_rows != total:
+        st.caption(f"{name} · {shown_rows:,} of {total:,} rows × {cols:,} columns")
+    else:
+        st.caption(f"{name} · {shown_rows:,} rows × {cols:,} columns")
+
+    st.dataframe(display, use_container_width=True, hide_index=True)
 
     with st.expander("Column types"):
         dtype_table = pd.DataFrame(
