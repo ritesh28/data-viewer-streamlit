@@ -5,3 +5,6 @@ __pycache__/
 # environments
 .venv/
 .env
+
+# local planning / scratch notes
+scratch/
