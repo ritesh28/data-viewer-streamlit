@@ -1,7 +1,7 @@
 [project]
-name = "streamlit-python"
+name = "data-viewer-streamlit"
 version = "0.1.0"
-description = ""
+description = "Tabular data viewer and cleaning tool built with Streamlit"
 authors = [
     {name = "Ritesh Raj",email = "rajritesh03@gmail.com"}
 ]
@@ -13,6 +13,8 @@ dependencies = [
     "openpyxl (>=3.1.5,<4.0.0)"
 ]
 
+[tool.poetry]
+package-mode = false
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
