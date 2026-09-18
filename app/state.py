@@ -12,8 +12,11 @@ DEFAULTS: dict = {
     "mode": "view",
     "cleaning_steps": [],
     "selected_column": None,
+    "view_filters": [],
+    "view_sort": [],
     # Tracks last successfully loaded upload so we only re-parse on change.
     "upload_fingerprint": None,
+    "filter_id_counter": 0,
 }
 
 
@@ -40,3 +43,11 @@ def set_dataframe(df, *, source_name: str, source_type: str) -> None:
     st.session_state.source_type = source_type
     st.session_state.cleaning_steps = []
     st.session_state.selected_column = None
+    st.session_state.view_filters = []
+    st.session_state.view_sort = []
+    st.session_state.filter_id_counter = 0
+
+
+def next_filter_id() -> str:
+    st.session_state.filter_id_counter += 1
+    return f"f{st.session_state.filter_id_counter}"
