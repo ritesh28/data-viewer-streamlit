@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+import altair as alt
 import pandas as pd
-import plotly.express as px
 import streamlit as st
 
 from app.stats import column_summary, is_datetime_series, is_numeric_series
@@ -17,7 +17,7 @@ def render_insights(df_view: pd.DataFrame) -> None:
     selected = st.session_state.selected_column
 
     if selected is None:
-        st.caption("Select a column in Data Summary to see distribution insights.")
+        st.caption("Select a column in Summary to see distribution insights.")
         return
 
     if selected not in df_view.columns:
@@ -35,12 +35,24 @@ def render_insights(df_view: pd.DataFrame) -> None:
         st.info("No non-null values to chart.")
         return
 
-    plot_df = pd.DataFrame({selected: non_null})
+    if is_numeric_series(series):
+        plot_df = pd.DataFrame({selected: non_null.astype(float)})
+        chart = (
+            alt.Chart(plot_df)
+            .mark_bar()
+            .encode(
+                x=alt.X(f"{selected}:Q", bin=alt.Bin(maxbins=30), title=selected),
+                y=alt.Y("count()", title="Count"),
+            )
+            .properties(height=240)
+        )
+        st.altair_chart(chart)
+        return
 
-    if is_numeric_series(series) or is_datetime_series(series):
-        fig = px.histogram(plot_df, x=selected, nbins=30 if is_numeric_series(series) else None)
-        fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), height=240)
-        st.plotly_chart(fig, use_container_width=True)
+    if is_datetime_series(series):
+        dates = pd.to_datetime(non_null).dt.date.value_counts().sort_index()
+        plot_df = dates.rename("count").rename_axis("date").reset_index()
+        st.bar_chart(plot_df, x="date", y="count", height=240)
         return
 
     counts = non_null.astype(str).value_counts()
@@ -53,12 +65,11 @@ def render_insights(df_view: pd.DataFrame) -> None:
         counts = counts.head(TOP_N_CHART)
         st.caption(f"Showing top {TOP_N_CHART} values.")
 
-    freq_df = counts.reset_index()
-    freq_df.columns = [selected, "count"]
-    fig = px.bar(freq_df, x="count", y=selected, orientation="h")
-    fig.update_layout(
-        margin=dict(l=10, r=10, t=10, b=10),
+    freq_df = counts.rename("count").rename_axis(selected).reset_index()
+    st.bar_chart(
+        freq_df,
+        x="count",
+        y=selected,
+        horizontal=True,
         height=max(200, min(420, 28 * len(freq_df))),
-        yaxis={"categoryorder": "total ascending"},
     )
-    st.plotly_chart(fig, use_container_width=True)
