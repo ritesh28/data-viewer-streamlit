@@ -6,15 +6,15 @@ Inspired by [VS Code Data Wrangler](https://marketplace.visualstudio.com/items?i
 
 ## Features
 
-| Area               | What it does                                                                     |
-| ------------------ | -------------------------------------------------------------------------------- |
-| **Upload**         | Load `.csv` or `.xlsx`, or use **Load sample** for the included demo dataset     |
-| **Explore panel**  | Tabs for **Summary**, **Insights**, and **Filters** beside the data grid         |
-| **Data Summary**   | Dataset or per-column stats (missing, distinct, mean/median/min/max, top values) |
-| **Quick Insights** | Distribution histogram (numeric) or frequency chart (categorical) via Plotly     |
-| **Filters & Sort** | Non-destructive view overlays — working data is unchanged                        |
-| **Data Grid**      | Always-visible scrollable table with filtered row counts (`N of total`)          |
-| **Download**       | Export the full working dataset as CSV or Excel (not just the filtered view)     |
+| Area | What it does |
+| ---- | ------------ |
+| **Upload** | Load `.csv` or `.xlsx`, or use **Load sample** for the included demo dataset |
+| **Explore panel** | Lazy tabs for **Summary**, **Insights**, and **Filters** beside the data grid |
+| **Data Summary** | Dataset or per-column stats (missing, distinct, mean/median/min/max, top values) |
+| **Quick Insights** | Native Vega charts — Altair histogram (numeric) or `st.bar_chart` (categorical) |
+| **Filters & Sort** | Non-destructive view overlays — working data is unchanged |
+| **Data Grid** | Always-visible scrollable table with filtered row counts (`N of total`) |
+| **Download** | Export the full working dataset as CSV or Excel (not just the filtered view) |
 
 ## Requirements
 
@@ -24,8 +24,8 @@ Inspired by [VS Code Data Wrangler](https://marketplace.visualstudio.com/items?i
 ## Setup
 
 ```bash
-pyenv local 3.11.7
-pyenv exec python -m venv .venv
+pyenv local 3.11.7   # optional if you use pyenv
+python -m venv .venv
 source .venv/bin/activate
 pip install -U pip setuptools poetry
 poetry install
@@ -34,20 +34,20 @@ poetry install
 ## Run
 
 ```bash
-poetry run streamlit run main.py
+poetry run streamlit run streamlit_app.py
 ```
 
 Open the URL Streamlit prints (default `http://localhost:8501`).
 
 ### Streamlit Cloud
 
-Set the main file path to `main.py`. The project uses `package-mode = false` in `pyproject.toml` so Poetry installs dependencies only.
+Main file: `streamlit_app.py`. The project uses `package-mode = false` in `pyproject.toml` so Poetry installs dependencies only.
 
 ## Supported formats
 
-| Action   | Formats         |
-| -------- | --------------- |
-| Upload   | `.csv`, `.xlsx` |
+| Action | Formats |
+| ------ | ------- |
+| Upload | `.csv`, `.xlsx` |
 | Download | `.csv`, `.xlsx` |
 
 Sample file: `Sample_Data_for_Plotting_and_Filtering.csv`
@@ -55,7 +55,7 @@ Sample file: `Sample_Data_for_Plotting_and_Filtering.csv`
 ## Project layout
 
 ```text
-main.py              # Streamlit entrypoint
+streamlit_app.py     # Streamlit entrypoint
 app/
   state.py           # session state
   io.py              # CSV/Excel load & export
