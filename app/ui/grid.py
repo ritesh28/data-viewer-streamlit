@@ -27,13 +27,15 @@ def render_grid(df_view: pd.DataFrame | None = None, *, total_rows: int | None =
     else:
         st.caption(f"{name} · {shown_rows:,} rows × {cols:,} columns")
 
-    st.dataframe(display, use_container_width=True, hide_index=True)
+    st.dataframe(display, hide_index=True, key="data_grid")
 
-    with st.expander("Column types"):
-        dtype_table = pd.DataFrame(
-            {
-                "column": df.columns.astype(str),
-                "dtype": df.dtypes.astype(str).values,
-            }
-        )
-        st.dataframe(dtype_table, use_container_width=True, hide_index=True)
+    types = st.expander("Column types", on_change="rerun")
+    if types.open:
+        with types:
+            dtype_table = pd.DataFrame(
+                {
+                    "column": df.columns.astype(str),
+                    "dtype": df.dtypes.astype(str).values,
+                }
+            )
+            st.dataframe(dtype_table, hide_index=True, key="dtype_grid")

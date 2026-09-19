@@ -79,4 +79,4 @@ def render_summary(df_view: pd.DataFrame) -> None:
             st.caption(
                 f"Avg string length: {_format_number(summary.get('avg_str_length'))}"
             )
-            st.dataframe(top_df, use_container_width=True, hide_index=True)
+            st.dataframe(top_df, hide_index=True, key="top_values_grid")

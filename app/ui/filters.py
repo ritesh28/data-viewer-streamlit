@@ -12,6 +12,8 @@ from app.stats import is_datetime_series, is_numeric_series
 from app.view_query import ops_for_series
 
 _NULL_OPS = {"is_null", "not_null"}
+_SORT_ASC = "Ascending"
+_SORT_DESC = "Descending"
 
 
 def _coerce_value(series: pd.Series, op: str, raw):
@@ -52,17 +54,17 @@ def _value_inputs(series: pd.Series, op: str, key_prefix: str):
             non_null = series.dropna()
             lo_default = float(non_null.min()) if len(non_null) else 0.0
             hi_default = float(non_null.max()) if len(non_null) else 1.0
-            c1, c2 = st.columns(2)
-            low = c1.number_input("Low", value=lo_default, key=f"{key_prefix}_lo")
-            high = c2.number_input("High", value=hi_default, key=f"{key_prefix}_hi")
+            with st.container(horizontal=True):
+                low = st.number_input("Low", value=lo_default, key=f"{key_prefix}_lo")
+                high = st.number_input("High", value=hi_default, key=f"{key_prefix}_hi")
             return [low, high]
         if is_datetime_series(series):
             non_null = series.dropna()
             lo_default = non_null.min().date() if len(non_null) else date.today()
             hi_default = non_null.max().date() if len(non_null) else date.today()
-            c1, c2 = st.columns(2)
-            low = c1.date_input("From", value=lo_default, key=f"{key_prefix}_lo")
-            high = c2.date_input("To", value=hi_default, key=f"{key_prefix}_hi")
+            with st.container(horizontal=True):
+                low = st.date_input("From", value=lo_default, key=f"{key_prefix}_lo")
+                high = st.date_input("To", value=hi_default, key=f"{key_prefix}_hi")
             return [low, high]
         st.warning("Between is only supported for numeric and datetime columns.")
         return None
@@ -90,7 +92,9 @@ def _format_rule(rule: dict) -> str:
 def render_filters(df: pd.DataFrame) -> None:
     """Build non-destructive view filter/sort rules from the full working df."""
     # Explicit panel instead of Data Wrangler-style column header menus.
-    with st.expander("Add filter", expanded=True):
+    # Keep filter builder outside st.form so condition options can react to column dtype.
+    with st.container(border=True):
+        st.markdown("**Add filter**")
         if df.empty or df.shape[1] == 0:
             st.caption("No columns available.")
         else:
@@ -110,7 +114,7 @@ def render_filters(df: pd.DataFrame) -> None:
             op = op_labels[op_label]
             raw_value = _value_inputs(series, op, "new_filter")
 
-            if st.button("Add filter", key="add_filter_btn"):
+            if st.button("Add filter", icon=":material/filter_alt:", key="add_filter_btn"):
                 try:
                     value = _coerce_value(series, op, raw_value)
                     if op == "in" and not value:
@@ -132,13 +136,18 @@ def render_filters(df: pd.DataFrame) -> None:
     if filters:
         st.markdown("**Active filters**")
         for rule in list(filters):
-            c1, c2 = st.columns([6, 1])
-            c1.markdown(_format_rule(rule))
-            if c2.button("✕", key=f"rm_filter_{rule['id']}"):
-                st.session_state.view_filters = [
-                    f for f in filters if f.get("id") != rule["id"]
-                ]
-                st.rerun()
+            with st.container(horizontal=True, horizontal_alignment="distribute"):
+                st.markdown(_format_rule(rule))
+                if st.button(
+                    "Remove",
+                    icon=":material/close:",
+                    key=f"rm_filter_{rule['id']}",
+                    type="tertiary",
+                ):
+                    st.session_state.view_filters = [
+                        f for f in filters if f.get("id") != rule["id"]
+                    ]
+                    st.rerun()
     else:
         st.caption("No filters applied.")
 
@@ -148,10 +157,10 @@ def render_filters(df: pd.DataFrame) -> None:
         options=["(none)", *[str(c) for c in df.columns]],
         key="sort_column_select",
     )
-    sort_dir = st.radio(
+    sort_dir = st.segmented_control(
         "Direction",
-        options=["Ascending", "Descending"],
-        horizontal=True,
+        options=[_SORT_ASC, _SORT_DESC],
+        default=_SORT_ASC,
         key="sort_direction",
     )
 
@@ -159,10 +168,19 @@ def render_filters(df: pd.DataFrame) -> None:
         st.session_state.view_sort = []
     else:
         st.session_state.view_sort = [
-            {"column": sort_col, "ascending": sort_dir == "Ascending"}
+            {
+                "column": sort_col,
+                "ascending": (sort_dir or _SORT_ASC) == _SORT_ASC,
+            }
         ]
 
-    if st.button("Clear filters & sort", type="secondary"):
+    if st.button(
+        "Clear filters & sort",
+        icon=":material/filter_alt_off:",
+        type="secondary",
+    ):
         st.session_state.view_filters = []
         st.session_state.view_sort = []
+        st.session_state.sort_column_select = "(none)"
+        st.session_state.sort_direction = _SORT_ASC
         st.rerun()

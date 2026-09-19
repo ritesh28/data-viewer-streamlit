@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pandas as pd
 import streamlit as st
 
 from app.io import (
@@ -19,6 +20,11 @@ from app.state import clear_data, set_dataframe
 SAMPLE_PATH = (
     Path(__file__).resolve().parents[2] / "Sample_Data_for_Plotting_and_Filtering.csv"
 )
+
+
+@st.cache_data(max_entries=4)
+def _cached_sample(path_str: str) -> pd.DataFrame:
+    return load_sample(path_str)
 
 
 def _upload_fingerprint(uploaded_file) -> str:
@@ -46,7 +52,7 @@ def _handle_upload(uploaded_file) -> None:
 
 def _handle_sample() -> None:
     try:
-        df = load_sample(SAMPLE_PATH)
+        df = _cached_sample(str(SAMPLE_PATH))
     except DataLoadError as exc:
         st.error(str(exc))
         return
@@ -72,7 +78,7 @@ def render_sidebar() -> None:
         if uploaded_file is not None:
             _handle_upload(uploaded_file)
 
-        if st.button("Load sample", use_container_width=True):
+        if st.button("Load sample", icon=":material/database:", width="stretch"):
             _handle_sample()
 
         st.divider()
@@ -86,17 +92,24 @@ def render_sidebar() -> None:
                 data=dataframe_to_csv_bytes(df),
                 file_name=export_filename(source_name, "csv"),
                 mime="text/csv",
-                use_container_width=True,
+                icon=":material/download:",
+                width="stretch",
             )
             st.download_button(
                 label="Download Excel",
                 data=dataframe_to_excel_bytes(df),
                 file_name=export_filename(source_name, "xlsx"),
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True,
+                icon=":material/download:",
+                width="stretch",
             )
 
             st.divider()
-            if st.button("Clear data", use_container_width=True, type="secondary"):
+            if st.button(
+                "Clear data",
+                icon=":material/delete:",
+                width="stretch",
+                type="secondary",
+            ):
                 clear_data()
                 st.rerun()
